@@ -38,7 +38,6 @@ const Workout = {
       if (err) {
         return callback(err);
       }
-      console.log(results)
       callback(null, results);
     });
   },
