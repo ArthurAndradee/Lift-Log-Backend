@@ -12,8 +12,8 @@ const Workout = {
       const workoutId = result.insertId;
       const setQueries = sets.map(set => {
         return new Promise((resolve, reject) => {
-          const setQuery = `INSERT INTO workout_sets (workoutId, setNumber, weight) VALUES (?, ?, ?)`;
-          db.query(setQuery, [workoutId, set.setNumber, set.weight], (err, setResult) => {
+          const setQuery = `INSERT INTO workout_sets (workoutId, setNumber, weight, reps) VALUES (?, ?, ?, ?)`;
+          db.query(setQuery, [workoutId, set.setNumber, set.weight, set.reps], (err, setResult) => {
             if (err) return reject(err);
             resolve(setResult);
           });
@@ -28,7 +28,7 @@ const Workout = {
 
   getPreviousRecords: (userId, exercise, callback) => {
     const query = `
-      SELECT w.id AS workoutId, w.exercise, w.date, s.setNumber, s.weight 
+      SELECT w.id AS workoutId, w.exercise, w.date, s.setNumber, s.weight, s.reps
       FROM workouts w
       JOIN workout_sets s ON w.id = s.workoutId
       WHERE w.userId = ? AND w.exercise = ?
@@ -38,9 +38,24 @@ const Workout = {
       if (err) {
         return callback(err);
       }
+      console.log(results)
       callback(null, results);
+    });
+  },
+  
+  getAvailableExercises: (userId, callback) => {
+    const query = `
+      SELECT DISTINCT exercise 
+      FROM workouts `;
+
+    db.query(query, [userId], (err, results) => {
+      if (err) {
+        return callback(err);
+      }
+      const exercises = results.map(row => row.exercise);
+      callback(null, exercises);
     });
   }
 };
 
-module.exports = Workout; 
+module.exports = Workout;

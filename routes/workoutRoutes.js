@@ -22,4 +22,15 @@ router.get('/records/:userId/:exercise', (req, res) => {
   });
 });
 
+router.get('/exercises', (req, res) => {
+  const userId = req.query.userId;
+
+  Workout.getAvailableExercises(userId, (err, exercises) => {
+    if (err) {
+      return res.status(500).json({ error: 'Error fetching exercises' });
+    }
+    res.json({ exercises });
+  });
+});
+
 module.exports = router;
