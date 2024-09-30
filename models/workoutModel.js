@@ -54,7 +54,40 @@ const Workout = {
       const exercises = results.map(row => row.exercise);
       callback(null, exercises);
     });
+  },
+
+  deleteWorkoutRecord: (userId, workoutId, callback) => {
+    const deleteQuery = `DELETE FROM workouts WHERE id = ? AND userId = ?`;
+    
+    db.query(deleteQuery, [parseInt(workoutId, 10), userId], (err, result) => {
+      if (err) {
+        return callback(err);
+      }
+      if (result.affectedRows === 0) {
+        return callback(null, false);
+      }
+      callback(null, true); 
+    });
+  },
+
+  deleteWorkoutRecord: (userId, workoutId, callback) => {
+    const deleteSetsQuery = `DELETE FROM workout_sets WHERE workoutId = ?`;
+    db.query(deleteSetsQuery, [workoutId], (err) => {
+      if (err) return callback(err);
+
+      const deleteQuery = `DELETE FROM workouts WHERE id = ? AND userId = ?`;
+      db.query(deleteQuery, [parseInt(workoutId, 10), userId], (err, result) => {
+        if (err) {
+          return callback(err);
+        }
+        if (result.affectedRows === 0) {
+          return callback(null, false);
+        }
+        callback(null, true); 
+      });
+    });
   }
-};
+}
+  
 
 module.exports = Workout;
