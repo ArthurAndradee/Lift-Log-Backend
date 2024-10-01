@@ -9,7 +9,6 @@ const JWT_SECRET = process.env.JWT_SECRET;
 export const registerUser = (req, res) => {
   const { username, password } = req.body;
 
-
   User.create(username, password, (err, result) => {
     if (err) return res.status(500).json({ error: 'Failed to register' });
     res.status(200).json({ message: 'User registered successfully' });
