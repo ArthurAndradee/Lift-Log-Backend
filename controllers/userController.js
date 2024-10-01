@@ -27,7 +27,7 @@ export const loginUser = (req, res) => {
 
     const userId = results[0].id;
   
-    const token = jwt.sign({ userId }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ userId }, JWT_SECRET, { expiresIn: '90d' });
 
   
     res.status(200).json({ message: 'Login successful', userId, token });
