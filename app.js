@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import userRoutes from './routes/userRoutes.js';
+import workoutRoutes from './routes/workoutRoutes.js';
+
 const app = express();
-const userRoutes = require('./routes/userRoutes');
-const workoutRoutes = require('./routes/workoutRoutes');
 
 app.use(express.json());
 

@@ -1,4 +1,5 @@
-const db = require('./db');
+// models/workoutModel.js
+import db from './db.js';
 
 const Workout = {
   logWorkout: (userId, exercise, sets, callback) => {
@@ -45,7 +46,7 @@ const Workout = {
   getAvailableExercises: (userId, callback) => {
     const query = `
       SELECT DISTINCT exercise 
-      FROM workouts `;
+      FROM workouts`;
 
     db.query(query, [userId], (err, results) => {
       if (err) {
@@ -53,20 +54,6 @@ const Workout = {
       }
       const exercises = results.map(row => row.exercise);
       callback(null, exercises);
-    });
-  },
-
-  deleteWorkoutRecord: (userId, workoutId, callback) => {
-    const deleteQuery = `DELETE FROM workouts WHERE id = ? AND userId = ?`;
-    
-    db.query(deleteQuery, [parseInt(workoutId, 10), userId], (err, result) => {
-      if (err) {
-        return callback(err);
-      }
-      if (result.affectedRows === 0) {
-        return callback(null, false);
-      }
-      callback(null, true); 
     });
   },
 
@@ -87,7 +74,6 @@ const Workout = {
       });
     });
   }
-}
-  
+};
 
-module.exports = Workout;
+export default Workout;
