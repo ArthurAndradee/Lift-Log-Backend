@@ -1,4 +1,3 @@
-// models/workoutModel.js
 import db from './db.js';
 
 const Workout = {
