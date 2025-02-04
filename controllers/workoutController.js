@@ -22,7 +22,8 @@ const workoutController = {
   },
 
   getAvailableExercises: (req, res) => {
-    const userId = req.query.userId;
+    const userId = req.userId;
+    console.log("user: " + userId);
 
     Workout.getAvailableExercises(userId, (err, exercises) => {
       if (err) {

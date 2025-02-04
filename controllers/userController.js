@@ -18,7 +18,6 @@ export const registerUser = (req, res) => {
 export const loginUser = (req, res) => {
   const { username, password } = req.body;
 
-
   User.findByUsername(username, (err, results) => {
     if (err || results.length === 0 || results[0].password !== password) {
       return res.status(400).json({ error: 'Invalid username or password' });
@@ -28,7 +27,6 @@ export const loginUser = (req, res) => {
   
     const token = jwt.sign({ userId }, JWT_SECRET, { expiresIn: '90d' });
 
-  
     res.status(200).json({ message: 'Login successful', userId, token });
     console.log(userId, token)
   });

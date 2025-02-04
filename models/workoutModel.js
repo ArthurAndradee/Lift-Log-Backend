@@ -8,7 +8,7 @@ const Workout = {
       if (err) {
         return callback(err);
       }
-
+      
       const workoutId = result.insertId;
       const setQueries = sets.map(set => {
         return new Promise((resolve, reject) => {
@@ -43,9 +43,12 @@ const Workout = {
   },
   
   getAvailableExercises: (userId, callback) => {
+    console.log("Fetching exercises for userId:", userId);
+    
     const query = `
-      SELECT DISTINCT exercise 
-      FROM workouts`;
+    SELECT DISTINCT exercise 
+    FROM workouts 
+    WHERE userId = ?`;
 
     db.query(query, [userId], (err, results) => {
       if (err) {
