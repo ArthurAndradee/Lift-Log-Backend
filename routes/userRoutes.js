@@ -3,6 +3,20 @@ import { registerUser, loginUser } from '../controllers/userController.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import rateLimit from 'express-rate-limit';
+
+// Rate limiting setup
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit to 5 requests per IP
+  message: 'Too many login attempts, please try again later.'
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit to 5 requests per IP
+  message: 'Too many registration attempts, please try again later.'
+});
 
 const router = Router();
 
@@ -24,7 +38,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.post('/register', upload.single('profilePicture'), registerUser);
-router.post('/login', loginUser);
+router.post('/register', registerLimiter, upload.single('profilePicture'), registerUser);
+router.post('/login', loginLimiter, loginUser);
 
 export default router;
