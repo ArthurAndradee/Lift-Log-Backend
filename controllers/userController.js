@@ -16,6 +16,11 @@ export const registerUser = (req, res) => {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
+  // Validate password is bigger than 8 characters
+  if (password.length <= 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+  }
+
   // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
@@ -25,13 +30,13 @@ export const registerUser = (req, res) => {
   // Store image path
   const profilePicture = `/uploads/${req.file.filename}`;
 
-  // Check if user already exists
-  const checkUserQuery = 'SELECT * FROM users WHERE username = ? OR email = ?';
-  db.query(checkUserQuery, [username, email], async (err, results) => {
+  // Check if email already exists
+  const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
+  db.query(checkEmailQuery, [email], async (err, results) => {
     if (err) return res.status(500).json({ error: 'Database error' });
 
     if (results.length > 0) {
-      return res.status(400).json({ error: 'Username or email already exists' });
+      return res.status(400).json({ error: 'Email is already registered' });
     }
 
     // Insert new user
