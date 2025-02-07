@@ -6,6 +6,7 @@ const Workout = {
 
     db.query(workoutQuery, [userId, exercise], (err, result) => {
       if (err) {
+        console.log("Erro: ", err);
         return callback(err);
       }
       

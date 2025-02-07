@@ -5,7 +5,9 @@ const workoutController = {
     const { userId, exercise, sets } = req.body;
 
     Workout.logWorkout(userId, exercise, sets, (err, result) => {
-      if (err) return res.status(500).json({ error: 'Failed to log workout' });
+      if (err) {
+        return res.status(500).json({ error: 'Failed to log workout' })
+      };
       res.status(200).json({ message: 'Workout logged successfully' });
     });
   },
