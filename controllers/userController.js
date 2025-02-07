@@ -63,42 +63,36 @@ export const loginUser = (req, res) => {
       return res.status(400).json({ error: 'Invalid username or password' });
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '90d' });
+    // Fetch profile picture path from the database
+    const getUserQuery = 'SELECT profilePicture FROM users WHERE id = ?';
+    db.query(getUserQuery, [user.id], (err, profileResults) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
 
-    res.status(200).json({
-      message: 'Login successful',
-      userId: user.id,
-      username: user.username,
-      email: user.email,
-      profilePicture: user.profilePicture,
-      token,
+      let profilePictureBase64 = null;
+
+      if (profileResults.length > 0 && profileResults[0].profilePicture) {
+        const profilePicturePath = profileResults[0].profilePicture;
+        const absolutePath = path.join(process.cwd(), profilePicturePath);
+
+        if (fs.existsSync(absolutePath)) {
+          const imageBuffer = fs.readFileSync(absolutePath);
+          profilePictureBase64 = `data:image/png;base64,${imageBuffer.toString('base64')}`;
+        }
+      }
+
+      // Generate JWT token
+      const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '90d' });
+
+      res.status(200).json({
+        message: 'Login successful',
+        userId: user.id,
+        username: user.username,
+        email: user.email,
+        profilePicture: profilePictureBase64, // Return the image as Base64
+        token,
+      });
     });
-  });
-};
-
-// New function to serve the profile picture file
-export const getUserProfilePicture = (req, res) => {
-  const userId = req.params.userId;
-
-  const getUserQuery = 'SELECT profilePicture FROM users WHERE id = ?';
-  db.query(getUserQuery, [userId], (err, results) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    if (results.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    const profilePicturePath = results[0].profilePicture;
-    if (!profilePicturePath) {
-      return res.status(404).json({ error: 'Profile picture not found' });
-    }
-    
-    const absolutePath = path.join(process.cwd(), profilePicturePath);
-    
-    if (!fs.existsSync(absolutePath)) {
-      return res.status(404).json({ error: 'Profile picture file does not exist' });
-    }
-    
-    res.sendFile(absolutePath);
   });
 };

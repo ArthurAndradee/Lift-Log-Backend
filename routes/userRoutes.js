@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { registerUser, loginUser, getUserProfilePicture } from '../controllers/userController.js';
+import { registerUser, loginUser } from '../controllers/userController.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -26,6 +26,5 @@ const upload = multer({ storage });
 
 router.post('/register', upload.single('profilePicture'), registerUser);
 router.post('/login', loginUser);
-router.get('/profile-picture/:userId', getUserProfilePicture);
 
 export default router;
