@@ -2,42 +2,44 @@ import User from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import db from '../database/db.js';
+import path from 'path';
+import fs from 'fs';
 
 dotenv.config();
-
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export const registerUser = (req, res) => {
-  const { username, password } = req.body;
+  const { username, email, password } = req.body;
 
-  // Validate username length
-  if (username.length < 8) {
-    return res.status(400).json({ error: 'Username must be at least 8 characters long' });
+  // Validate required fields
+  if (!username || !email || !password || !req.file) {
+    return res.status(400).json({ error: 'All fields are required' });
   }
 
-  // Check if username already exists
-  User.findByUsername(username, (err, results) => {
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: 'Invalid email format' });
+  }
+
+  // Store image path
+  const profilePicture = `/uploads/${req.file.filename}`;
+
+  // Check if user already exists
+  const checkUserQuery = 'SELECT * FROM users WHERE username = ? OR email = ?';
+  db.query(checkUserQuery, [username, email], async (err, results) => {
     if (err) return res.status(500).json({ error: 'Database error' });
-    
+
     if (results.length > 0) {
-      return res.status(400).json({ error: 'Username already exists' });
+      return res.status(400).json({ error: 'Username or email already exists' });
     }
 
-    // Check if password already exists in the database
-    const passwordQuery = 'SELECT * FROM users WHERE password = ?';
+    // Insert new user
+    const insertUserQuery = 'INSERT INTO users (username, email, password, profilePicture) VALUES (?, ?, ?, ?)';
+    db.query(insertUserQuery, [username, email, password, profilePicture], (err, result) => {
+      if (err) return res.status(500).json({ error: 'Failed to register' });
 
-    db.query(passwordQuery, [password], (err, passwordResults) => {
-      if (err) return res.status(500).json({ error: 'Database error' });
-
-      if (passwordResults.length > 0) {
-        return res.status(400).json({ error: 'Password already in use' });
-      }
-
-      // If both checks pass, create the user
-      User.create(username, password, (err, result) => {
-        if (err) return res.status(500).json({ error: 'Failed to register' });
-        res.status(200).json({ message: 'User registered successfully' });
-      });
+      res.status(201).json({ message: 'User registered successfully' });
     });
   });
 };
@@ -45,14 +47,58 @@ export const registerUser = (req, res) => {
 export const loginUser = (req, res) => {
   const { username, password } = req.body;
 
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required' });
+  }
+
   User.findByUsername(username, (err, results) => {
-    if (err || results.length === 0 || results[0].password !== password) {
+    if (err || results.length === 0) {
       return res.status(400).json({ error: 'Invalid username or password' });
     }
-    const userId = results[0].id;
-  
-    const token = jwt.sign({ userId }, JWT_SECRET, { expiresIn: '90d' });
 
-    res.status(200).json({ message: 'Login successful', userId, token });
+    const user = results[0];
+
+    // Check password
+    if (user.password !== password) {
+      return res.status(400).json({ error: 'Invalid username or password' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '90d' });
+
+    res.status(200).json({
+      message: 'Login successful',
+      userId: user.id,
+      username: user.username,
+      email: user.email,
+      profilePicture: user.profilePicture,
+      token,
+    });
+  });
+};
+
+// New function to serve the profile picture file
+export const getUserProfilePicture = (req, res) => {
+  const userId = req.params.userId;
+
+  const getUserQuery = 'SELECT profilePicture FROM users WHERE id = ?';
+  db.query(getUserQuery, [userId], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const profilePicturePath = results[0].profilePicture;
+    if (!profilePicturePath) {
+      return res.status(404).json({ error: 'Profile picture not found' });
+    }
+    
+    const absolutePath = path.join(process.cwd(), profilePicturePath);
+    
+    if (!fs.existsSync(absolutePath)) {
+      return res.status(404).json({ error: 'Profile picture file does not exist' });
+    }
+    
+    res.sendFile(absolutePath);
   });
 };
