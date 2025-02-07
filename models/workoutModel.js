@@ -41,10 +41,24 @@ const Workout = {
       callback(null, results);
     });
   },
+
+  getAllRecords: (userId, callback) => {
+    const query = `
+      SELECT w.id AS workoutId, w.exercise, w.date, s.setNumber, s.weight, s.reps
+      FROM workouts w
+      JOIN workout_sets s ON w.id = s.workoutId
+      WHERE w.userId = ?
+      ORDER BY w.date DESC`;
   
-  getAvailableExercises: (userId, callback) => {
-    console.log("Fetching exercises for userId:", userId);
-    
+    db.query(query, [userId], (err, results) => {
+      if (err) {
+        return callback(err);
+      }
+      callback(null, results);
+    });
+  },  
+  
+  getAvailableExercises: (userId, callback) => {    
     const query = `
     SELECT DISTINCT exercise 
     FROM workouts 

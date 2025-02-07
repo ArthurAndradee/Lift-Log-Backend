@@ -21,9 +21,19 @@ const workoutController = {
     });
   },
 
+  getAllRecords: (req, res) => {
+    const { userId } = req.params;
+  
+    Workout.getAllRecords(userId, (err, records) => {
+      if (err) {
+        return res.status(500).json({ error: 'Failed to fetch records' });
+      }
+      res.json(records);
+    });
+  },  
+
   getAvailableExercises: (req, res) => {
     const userId = req.userId;
-    console.log("user: " + userId);
 
     Workout.getAvailableExercises(userId, (err, exercises) => {
       if (err) {
