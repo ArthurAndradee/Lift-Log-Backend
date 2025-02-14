@@ -58,6 +58,8 @@ export const loginUser = (req, res) => {
 
   User.findByUsername(username, (err, results) => {
     if (err || results.length === 0) {
+    console.log("bro")
+
       return res.status(400).json({ error: 'Invalid username or password' });
     }
 
