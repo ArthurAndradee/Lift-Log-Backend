@@ -1,10 +1,26 @@
 import Workout from '../models/workoutModel.js';
+import db from '../database/db.js';
 
 const workoutController = {
-  logWorkout: (req, res) => {
-    const { userId, exercise, sets } = req.body;
+  createWorkout: (req, res) => {
+    const { userId, workoutName } = req.body; 
+    
+    Workout.createWorkout(userId, workoutName, (err, workoutId) => {
+      if (err) {
+        return res.status(500).json({ error: 'Failed to create workout' });
+      }
+      res.status(200).json({
+        message: 'Workout created successfully',
+        workoutId: workoutId,
+      });
+    });
+  },
+  
 
-    Workout.logWorkout(userId, exercise, sets, (err, exerciseId) => {
+  logWorkout: (req, res) => {
+    const { userId, exercise, sets, workoutId } = req.body;
+
+    Workout.logWorkout(userId, exercise, sets, workoutId, (err, exerciseId) => {
       if (err) {
         return res.status(500).json({ error: 'Failed to log workout' })
       };
@@ -48,10 +64,10 @@ const workoutController = {
     });
   },
 
-  deleteWorkout: (req, res) => {
+  deleteExercise: (req, res) => {
     const { userId, workoutId } = req.body;
 
-    Workout.deleteWorkoutRecord(userId, workoutId, (err, success) => {
+    Workout.deleteExercise(userId, workoutId, (err, success) => {
       if (err) return res.status(500).json({ error: 'Failed to delete workout' });
       if (!success) return res.status(404).json({ error: 'Workout not found or unauthorized' });
       res.status(200).json({ message: 'Workout deleted successfully' });

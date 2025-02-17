@@ -1,10 +1,22 @@
 import db from '../database/db.js';
 
 const Workout = {
-  logWorkout: (userId, exercise, sets, callback) => {
-    const exerciseQuery = `INSERT INTO exercises (userId, exercise) VALUES (?, ?)`;
+  createWorkout: (userId, workoutName, callback) => {
+    const workoutQuery = `INSERT INTO workouts (userId, name, date) VALUES (?, ?, ?)`;
+  
+    db.query(workoutQuery, [userId, workoutName, new Date()], (err, result) => {
+      if (err) {
+        return callback(err);
+      }
+      const workoutId = result.insertId;
+      callback(null, workoutId);  
+    });
+  },
 
-    db.query(exerciseQuery, [userId, exercise], (err, result) => {
+  logWorkout: (userId, exercise, sets, workoutId, callback) => {
+    const exerciseQuery = `INSERT INTO exercises (userId, exercise, workoutId) VALUES (?, ?, ?)`;
+
+    db.query(exerciseQuery, [userId, exercise, workoutId || null], (err, result) => {
       if (err) {
         return callback(err);
       }
@@ -75,7 +87,7 @@ const Workout = {
     });
   },
 
-  deleteWorkoutRecord: (userId, workoutId, callback) => {
+  deleteExercise: (userId, workoutId, callback) => {
     const deleteSetsQuery = `DELETE FROM exercise_sets WHERE exerciseId = ?`;
     db.query(deleteSetsQuery, [workoutId], (err) => {
       if (err) return callback(err);
