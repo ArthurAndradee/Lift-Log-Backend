@@ -14,9 +14,8 @@ const Workout = {
       const setQueries = sets.map(set => {
         return new Promise((resolve, reject) => {
           const setQuery = `INSERT INTO exercise_sets (exerciseId, setNumber, weight, reps) VALUES (?, ?, ?, ?)`;  
-          db.query(setQuery, [exerciseId, set.setNumber, set.weight, set.reps], (err, setResult) => {
-            console.log("Erro: ", err);
 
+          db.query(setQuery, [exerciseId, set.setNumber, set.weight, set.reps], (err, setResult) => {
             if (err) return reject(err);
             resolve(setResult);
           });
@@ -24,12 +23,12 @@ const Workout = {
       });
 
       Promise.all(setQueries)
-        .then(results => callback(null, results))
+        .then(() => callback(null, exerciseId))
         .catch(err => callback(err));
     });
   },
 
-  getPreviousRecords: (userId, exercise, callback) => {
+  getSpecificExerciseRecord: (userId, exercise, callback) => {
     const query = `
       SELECT e.id AS exerciseId, e.exercise, e.date, s.setNumber, s.weight, s.reps
       FROM exercises e
@@ -45,12 +44,12 @@ const Workout = {
     });
   },
 
-  getAllRecords: (userId, callback) => {
+  getAllExerciseRecords: (userId, callback) => {
     const query = `
       SELECT e.id AS exerciseId, e.exercise, e.date, s.setNumber, s.weight, s.reps
       FROM exercises e
       JOIN exercise_sets s ON e.id = s.exerciseId
-      WHERE e.userId = 1
+      WHERE e.userId = ?
       ORDER BY e.date DESC;`;
   
     db.query(query, [userId], (err, results) => {
@@ -61,7 +60,7 @@ const Workout = {
     });
   },  
   
-  getAvailableExercises: (userId, callback) => {    
+  getExercisesByName: (userId, callback) => {    
     const query = `
     SELECT DISTINCT exercise 
     FROM exercises 

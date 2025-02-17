@@ -4,44 +4,47 @@ const workoutController = {
   logWorkout: (req, res) => {
     const { userId, exercise, sets } = req.body;
 
-    Workout.logWorkout(userId, exercise, sets, (err, result) => {
+    Workout.logWorkout(userId, exercise, sets, (err, exerciseId) => {
       if (err) {
         return res.status(500).json({ error: 'Failed to log workout' })
       };
-      res.status(200).json({ message: 'Workout logged successfully' });
+      res.status(200).json({ 
+        message: 'Workout logged successfully',
+        exerciseId
+      });
     });
   },
-
-  getPreviousRecords: (req, res) => {
-    const { userId, exercise } = req.params;
-
-    Workout.getPreviousRecords(userId, exercise, (err, records) => {
-      if (err) {
-        return res.status(500).json({ error: 'Failed to fetch records' });
-      }
-      res.json(records);
-    });
-  },
-
-  getAllRecords: (req, res) => {
-    const { userId } = req.params;
   
-    Workout.getAllRecords(userId, (err, records) => {
-      if (err) {
-        return res.status(500).json({ error: 'Failed to fetch records' });
-      }
-      res.json(records);
-    });
-  },  
-
-  getAvailableExercises: (req, res) => {
+  getExercisesByName: (req, res) => {
     const userId = req.userId;
 
-    Workout.getAvailableExercises(userId, (err, exercises) => {
+    Workout.getExercisesByName(userId, (err, exercises) => {
       if (err) {
         return res.status(500).json({ error: 'Error fetching exercises' });
       }
       res.json({ exercises });
+    });
+  },
+
+  getSpecificExerciseRecord: (req, res) => {
+    const { userId, exercise } = req.params;
+
+    Workout.getSpecificExerciseRecord(userId, exercise, (err, records) => {
+      if (err) {
+        return res.status(500).json({ error: 'Failed to fetch records' });
+      }
+      res.json(records);
+    });
+  },
+
+  getAllExerciseRecords: (req, res) => {
+    const { userId } = req.params;
+  
+    Workout.getAllExerciseRecords(userId, (err, records) => {
+      if (err) {
+        return res.status(500).json({ error: 'Failed to fetch records' });
+      }
+      res.json(records);
     });
   },
 
