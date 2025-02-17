@@ -28,7 +28,7 @@ const Workout = {
     });
   },
 
-  getSpecificExerciseRecord: (userId, exercise, callback) => {
+  getUniqueExerciseSets: (userId, exercise, callback) => {
     const query = `
       SELECT e.id AS exerciseId, e.exercise, e.date, s.setNumber, s.weight, s.reps
       FROM exercises e
@@ -44,7 +44,7 @@ const Workout = {
     });
   },
 
-  getAllExerciseRecords: (userId, callback) => {
+  getAllExerciseSets: (userId, callback) => {
     const query = `
       SELECT e.id AS exerciseId, e.exercise, e.date, s.setNumber, s.weight, s.reps
       FROM exercises e
