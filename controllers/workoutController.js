@@ -1,16 +1,16 @@
 import Workout from '../models/workoutModel.js';
 
 const workoutController = {
-  logWorkout: (req, res) => {
-    const { userId, exercise, sets } = req.body;
+    logWorkout: (req, res) => {
+      const { userId, exercise, sets } = req.body;
 
-    Workout.logWorkout(userId, exercise, sets, (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: 'Failed to log workout' })
-      };
-      res.status(200).json({ message: 'Workout logged successfully' });
-    });
-  },
+      Workout.logWorkout(userId, exercise, sets, (err, result) => {
+        if (err) {
+          return res.status(500).json({ error: 'Failed to log workout' })
+        };
+        res.status(200).json({ message: 'Workout logged successfully' });
+      });
+    },
 
   getPreviousRecords: (req, res) => {
     const { userId, exercise } = req.params;
