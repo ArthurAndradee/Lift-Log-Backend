@@ -1,4 +1,5 @@
 import Workout from '../models/workoutModel.js';
+import db from '../database/db.js';
 
 const workoutController = {
   createWorkout: (req, res) => {
@@ -71,7 +72,52 @@ const workoutController = {
       if (!success) return res.status(404).json({ error: 'Workout not found or unauthorized' });
       res.status(200).json({ message: 'Workout deleted successfully' });
     });
-  }
+  },
+
+  getWorkoutsForUser: (req, res) => {
+    const { userId } = req.params;
+  
+    Workout.getWorkoutsForUser(userId, (err, workouts) => {
+      if (err) {
+        return res.status(500).json({ error: 'Failed to retrieve workouts' });
+      }
+      res.status(200).json({ workouts });
+    });
+  },
+  
+  getExerciseNamesForWorkout: (req, res) => {
+    const { userId, workoutName } = req.params;
+
+    Workout.getExerciseNamesForWorkout(userId, workoutName, (err, exercises) => {
+      if (err) {
+        return res.status(500).json({ error: 'Error fetching exercise names' });
+      }
+      res.json({ exercises });
+    });
+  },
+
+  getExerciseDetailsForWorkout: (req, res) => {
+    const { userId, workoutName } = req.params;
+
+    Workout.getExerciseDetailsForWorkout(userId, workoutName, (err, details) => {
+      if (err) {
+        return res.status(500).json({ error: 'Error fetching exercise details' });
+      }
+      res.json({ details });
+    });
+  },
+
+  createExerciseForWorkout: (req, res) => {
+    const { userId, workoutName } = req.params;
+    const exerciseData = req.body;
+
+    Workout.createExerciseForWorkout(userId, workoutName, exerciseData, (err, result) => {
+      if (err) {
+        return res.status(500).json({ error: 'Error creating exercise' });
+      }
+      res.json(result);
+    });
+  } 
 };
 
 export default workoutController;

@@ -103,6 +103,89 @@ const Workout = {
         callback(null, true); 
       });
     });
+  },
+
+  getWorkoutsForUser: (userId, callback) => {
+    const query = `
+      SELECT DISTINCT w.name AS workoutName
+      FROM workouts w
+      WHERE w.userId = ?
+      ORDER BY w.date DESC;
+    `;
+  
+    db.query(query, [userId], (err, results) => {
+      if (err) {
+        return callback(err);
+      }
+      const workoutNames = results.map(row => row.workoutName);
+      callback(null, workoutNames);
+    });
+  },
+
+  getExerciseNamesForWorkout: (userId, workoutName, callback) => {
+    const query = `
+      SELECT e.exercise
+      FROM exercises e
+      JOIN workouts w ON e.workoutId = w.id
+      WHERE w.userId = ? AND w.name = ?
+      ORDER BY e.date DESC;`;
+
+    db.query(query, [userId, workoutName], (err, results) => {
+      if (err) {
+        return callback(err);
+      }
+      callback(null, results.map(row => row.exercise));
+    });
+  },
+
+  getExerciseDetailsForWorkout: (userId, workoutName, callback) => {
+    const query = `
+      SELECT e.exercise, s.setNumber, s.weight, s.reps
+      FROM exercises e
+      JOIN exercise_sets s ON e.id = s.exerciseId
+      JOIN workouts w ON e.workoutId = w.id
+      WHERE w.userId = ? AND w.name = ?
+      ORDER BY e.date DESC, s.setNumber ASC;`;
+
+    db.query(query, [userId, workoutName], (err, results) => {
+      if (err) {
+        return callback(err);
+      }
+      callback(null, results);
+    });
+  },
+
+  createExerciseForWorkout: (userId, workoutName, exerciseData, callback) => {
+    const query = `
+      INSERT INTO exercises (userId, exercise, workoutId, date)
+      VALUES (?, ?, (SELECT id FROM workouts WHERE userId = ? AND name = ?), NOW());`;
+
+    db.query(query, [userId, exerciseData.exercise, userId, workoutName], (err, results) => {
+      if (err) {
+        return callback(err);
+      }
+
+      const exerciseId = results.insertId;
+      const setQueries = exerciseData.sets.map(set => {
+        return new Promise((resolve, reject) => {
+          const setQuery = `
+            INSERT INTO exercise_sets (exerciseId, setNumber, weight, reps)
+            VALUES (?, ?, ?, ?);`;
+
+          db.query(setQuery, [exerciseId, set.setNumber, set.weight, set.reps], (err, setResults) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(setResults);
+            }
+          });
+        });
+      });
+
+      Promise.all(setQueries)
+        .then(() => callback(null, { message: 'Exercise logged successfully' }))
+        .catch(err => callback(err));
+    });
   }
 };
 
