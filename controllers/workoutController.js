@@ -1,5 +1,4 @@
 import Workout from '../models/workoutModel.js';
-import db from '../database/db.js';
 
 const workoutController = {
   createWorkout: (req, res) => {

@@ -13,7 +13,7 @@ router.delete('/delete', authMiddleware, workoutController.deleteExercise);
 router.post('/create', authMiddleware, workoutController.createWorkout);
 router.get('/workouts/:userId', authMiddleware, workoutController.getWorkoutsForUser); // Fetch all workouts for a user
 router.get('/workout/exercises/:userId/:workoutName', authMiddleware, workoutController.getExerciseNamesForWorkout);
-router.get('/workout/:userId/:workoutName/exercise-details', authMiddleware, workoutController.getExerciseDetailsForWorkout);
-router.post('/workout/:userId/:workoutName/exercise', authMiddleware, workoutController.createExerciseForWorkout);
+router.get('/workout/exercise-details/:userId/:workoutName', authMiddleware, workoutController.getExerciseDetailsForWorkout);
+router.post('/workout/exercise/:userId/:workoutName', authMiddleware, workoutController.createExerciseForWorkout);
 
 export default router;

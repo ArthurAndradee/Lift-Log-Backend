@@ -107,7 +107,7 @@ const Workout = {
 
   getWorkoutsForUser: (userId, callback) => {
     const query = `
-      SELECT DISTINCT w.name AS workoutName
+      SELECT DISTINCT w.id AS workoutId, w.name AS workoutName
       FROM workouts w
       WHERE w.userId = ?
       ORDER BY w.date DESC;
@@ -117,8 +117,13 @@ const Workout = {
       if (err) {
         return callback(err);
       }
-      const workoutNames = results.map(row => row.workoutName);
-      callback(null, workoutNames);
+      
+      // Map results to include both id and name
+      const workouts = results.map(row => ({
+        id: row.workoutId,
+        name: row.workoutName
+      }));
+      callback(null, workouts);
     });
   },
 
