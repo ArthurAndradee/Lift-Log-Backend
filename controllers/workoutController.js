@@ -85,9 +85,9 @@ const workoutController = {
   },
   
   getExerciseNamesForWorkout: (req, res) => {
-    const { userId, workoutName } = req.params;
+    const { userId, workoutId } = req.params;
 
-    Workout.getExerciseNamesForWorkout(userId, workoutName, (err, exercises) => {
+    Workout.getExerciseNamesForWorkout(userId, workoutId, (err, exercises) => {
       if (err) {
         return res.status(500).json({ error: 'Error fetching exercise names' });
       }
@@ -96,9 +96,9 @@ const workoutController = {
   },
 
   getExerciseDetailsForWorkout: (req, res) => {
-    const { userId, workoutName } = req.params;
+    const { userId, workoutId } = req.params;
 
-    Workout.getExerciseDetailsForWorkout(userId, workoutName, (err, details) => {
+    Workout.getExerciseDetailsForWorkout(userId, workoutId, (err, details) => {
       if (err) {
         return res.status(500).json({ error: 'Error fetching exercise details' });
       }
