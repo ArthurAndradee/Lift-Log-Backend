@@ -107,14 +107,9 @@ const Workout = {
 
   getWorkoutsForUser: (userId, callback) => {
     const query = `
-      SELECT w.id, w.name, w.date
+    SELECT DISTINCT w.id, w.name, w.date
       FROM workouts w
-      WHERE w.userId = ?
-      AND w.date = (
-          SELECT MIN(w2.date)
-          FROM workouts w2
-          WHERE w2.name = w.name AND w2.userId = w.userId
-      )
+      WHERE w.userId = 1
       ORDER BY w.date DESC;
     `;
   
