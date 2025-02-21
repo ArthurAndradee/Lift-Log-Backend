@@ -40,7 +40,7 @@ const Workout = {
     });
   },
 
-  getUniqueExerciseSets: (userId, exercise, callback) => {
+  getExercisesInfo: (userId, exercise, callback) => {
     const query = `
       SELECT e.id AS exerciseId, e.exercise, e.date, s.setNumber, s.weight, s.reps
       FROM exercises e
@@ -72,7 +72,7 @@ const Workout = {
     });
   },  
   
-  getExercisesByName: (userId, callback) => {    
+  getExercisesNames: (userId, callback) => {    
     const query = `
     SELECT DISTINCT exercise 
     FROM exercises 
@@ -107,7 +107,7 @@ const Workout = {
 
   getWorkoutsForUser: (userId, callback) => {
     const query = `
-      SELECT DISTINCT w.id AS workoutId, w.name AS workoutName
+	    SELECT DISTINCT w.id, w.name, w.date
       FROM workouts w
       WHERE w.userId = ?
       ORDER BY w.date DESC;
@@ -118,10 +118,10 @@ const Workout = {
         return callback(err);
       }
       
-      // Map results to include both id and name
       const workouts = results.map(row => ({
-        id: row.workoutId,
-        name: row.workoutName
+        id: row.id,
+        name: row.name,
+        date: row.date
       }));
       callback(null, workouts);
     });
@@ -145,12 +145,13 @@ const Workout = {
 
   getExerciseDetailsForWorkout: (userId, workoutName, callback) => {
     const query = `
-      SELECT e.exercise, s.setNumber, s.weight, s.reps
+      SELECT e.id, e.exercise as name, s.setNumber, s.weight, s.reps
       FROM exercises e
       JOIN exercise_sets s ON e.id = s.exerciseId
       JOIN workouts w ON e.workoutId = w.id
       WHERE w.userId = ? AND w.name = ?
-      ORDER BY e.date DESC, s.setNumber ASC;`;
+      ORDER BY e.date DESC, s.setNumber ASC;
+      `;
 
     db.query(query, [userId, workoutName], (err, results) => {
       if (err) {

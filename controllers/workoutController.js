@@ -30,10 +30,10 @@ const workoutController = {
     });
   },
   
-  getExercisesByName: (req, res) => {
+  getExercisesNames: (req, res) => {
     const userId = req.userId;
 
-    Workout.getExercisesByName(userId, (err, exercises) => {
+    Workout.getExercisesNames(userId, (err, exercises) => {
       if (err) {
         return res.status(500).json({ error: 'Error fetching exercises' });
       }
@@ -41,10 +41,10 @@ const workoutController = {
     });
   },
 
-  getUniqueExerciseSets: (req, res) => {
+  getExercisesInfo: (req, res) => {
     const { userId, exercise } = req.params;
 
-    Workout.getUniqueExerciseSets(userId, exercise, (err, records) => {
+    Workout.getExercisesInfo(userId, exercise, (err, records) => {
       if (err) {
         return res.status(500).json({ error: 'Failed to fetch records' });
       }

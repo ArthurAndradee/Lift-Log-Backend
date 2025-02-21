@@ -6,8 +6,8 @@ const router = Router();
 
 router.post('/log', authMiddleware, workoutController.logWorkout);
 router.get('/records/:userId', authMiddleware, workoutController.getAllExerciseSets);
-router.get('/records/:userId/:exercise', authMiddleware, workoutController.getUniqueExerciseSets);
-router.get('/exercises', authMiddleware, workoutController.getExercisesByName);
+router.get('/records/:userId/:exercise', authMiddleware, workoutController.getExercisesInfo);
+router.get('/exercises', authMiddleware, workoutController.getExercisesNames);
 router.delete('/delete', authMiddleware, workoutController.deleteExercise);
 
 router.post('/create', authMiddleware, workoutController.createWorkout);
